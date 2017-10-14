@@ -1,4 +1,4 @@
-# PS/2 Keyboard to TTL Serial Adapter
+# PS/2 Keyboard MIDI Controller
 ## Scott Baker, [http://www.smbaker.com/](http://www.smbaker.com/)
 
 This program implements a receiver for a PS/2 keyboard, decodes the scan keys,
