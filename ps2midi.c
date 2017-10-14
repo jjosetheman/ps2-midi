@@ -18,6 +18,7 @@
 #include <util/delay.h>
 
 #include "softuart.h"
+#include "instruments.h"
 #include "notemap.h"
 
 //Keyboard pin out
@@ -33,6 +34,8 @@
 volatile uint8_t kbd_data;
 volatile uint8_t char_waiting;
 volatile uint8_t up_event, down_event;
+volatile uint8_t next_extended, up_extended, down_extended;
+volatile uint8_t key_state[256];
 uint8_t started;
 uint8_t bit_count;
 uint8_t shift;
@@ -78,6 +81,9 @@ ISR(PCINT0_vect){
     release = 1;
     kbd_data = 0;
     return;
+  } else if ((kbd_data == 0xE0) || (kbd_data == 0xE1)) { //extended code
+    next_extended = 1;
+    return;
   } else if ((kbd_data == 0x12) || (kbd_data == 0x59)) { //handle shift key
     if(release == 0){
       shift = 1;
@@ -90,20 +96,37 @@ ISR(PCINT0_vect){
     if(release){ //we were in release mode - exit release mode
       release = 0;
       up_event = kbd_data;
-    } else {
-      down_event = kbd_data;
+      up_extended = next_extended;
+      next_extended = 0;
+      key_state[kbd_data] = 0;
+    } else { 
+      // ignore down events if key repeat is occurring
+      if (key_state[kbd_data] == 0) {
+          down_event = kbd_data;
+          down_extended = next_extended;
+      }
+      next_extended = 0;
       char_waiting = 1;
+      key_state[kbd_data] = 1;
     }
   }
 
 }
 
-char map_note(uint8_t data){
-  return pgm_read_byte(&(notemap[data]));
+char map_note(uint8_t data, uint8_t extended){
+  if (extended) {
+      return pgm_read_byte(&(ext_notemap[data]));
+  } else {
+      return pgm_read_byte(&(notemap[data]));
+  }
 }
 
-char map_channel(uint8_t data){
-  return pgm_read_byte(&(chanmap[data]));
+char map_channel(uint8_t data, uint8_t extended){
+  if (extended) {
+      return pgm_read_byte(&(ext_chanmap[data]));
+  } else {
+      return pgm_read_byte(&(chanmap[data]));
+  }
 }
 
 uint8_t read_char(){
@@ -114,7 +137,13 @@ uint8_t read_char(){
   return kbd_data;
 }
 
-void init_keyboard(){
+void init_keyboard()
+{
+  uint8_t i;
+
+  for (i=0; i<255; i++) {
+    key_state[i] = 0;
+  }
 
   started = 0;
   kbd_data = 0;
@@ -150,6 +179,8 @@ void led_off()
 }
 
 int main() {
+  int i;
+
   init_keyboard();
 
   uartInit();
@@ -164,28 +195,35 @@ int main() {
   up_event = 0;
   down_event = 0;
 
+  // setup the channels
+
+  for (i=0; i<CHANNEL_COUNT; i++) {
+    uartSend(0xC0 + CHANNEL_OFFSET + i);
+    uartSend(pgm_read_byte(&(insmap[i]))-1);
+  }
+
   while(1) {
     if (up_event != 0) {
         led_off();
-        chan = map_channel(up_event);
-        note = map_note(up_event);
+        chan = map_channel(up_event, up_extended);
+        note = map_note(up_event, up_extended);
         if (note != 0) {
-            uartSend(0x80 + chan);
+            uartSend(0x80 + CHANNEL_OFFSET + chan);
             uartSend(note);
             uartSend(0x40);
-            up_event = 0;
         }
+        up_event = 0;
     }
     if (down_event != 0) {
       led_on();
-      chan = map_channel(down_event);
-      note = map_note(down_event);
+      chan = map_channel(down_event, down_extended);
+      note = map_note(down_event, down_extended);
       if (note != 0) {
-	uartSend(0x90 + chan);
+	uartSend(0x90 + CHANNEL_OFFSET + chan);
 	uartSend(note);
 	uartSend(0x40);
-	down_event = 0;
       }
+      down_event = 0;
     }
   }
 
