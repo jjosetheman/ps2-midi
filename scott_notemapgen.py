@@ -18,9 +18,13 @@ lines = ["1234567890-=",
          "",
          "",
          ""
-         " `" + BS + TAB + ENTER + BACKQUOTE + ESC + LCTRL + LALT + SCROLL + NUM + LARR + DARR + UARR + RARR + INS + DEL + HOME + PGUP + PGDN + END]
+         " `" + BS + TAB + ENTER + BACKQUOTE + ESC + LCTRL + LALT + 
+               SCROLL + NUM + LARR + DARR + UARR + RARR + INS + DEL + 
+               HOME + PGUP + PGDN + END + LGUI + RGUI + LSHIFT + RSHIFT +
+               CAPSLOCK + RCTRL + RALT]
 
-notes = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83, 36, 38, 40, 41, 43, 45, 47]
+notes = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83, 
+         36, 38, 40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59]
 
 def map_code(ch):
         line_index = 0

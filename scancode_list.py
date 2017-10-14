@@ -30,6 +30,8 @@ HOME=chr(228)
 PGUP=chr(229)
 PGDN=chr(230)
 END=chr(231)
+LGUI=chr(232)
+RGUI=chr(233)
 
 
 BS=chr(8)
@@ -96,8 +98,11 @@ codes=[
   (0x76, ESC, ESC),
   (0x14, LCTRL, LCTRL),
   (0x11, LALT, LALT),
+  (0x12, LSHIFT, LSHIFT),
+  (0x59, RSHIFT, RSHIFT),
   (0x77, NUM, NUM),
   (0x7E, SCROLL, SCROLL),
+  (0x58, CAPSLOCK, CAPSLOCK),
 
   (0x05, F1, F1),
   (0x06, F2, F2),
@@ -111,10 +116,31 @@ codes=[
   (0x09, F10, F10),
   (0x78, F11, F11),
   (0x07, F12, F12),
+
+  (0x69, '1', '1'),
+  (0x6B, '4', '4'),
+  (0x6C, '7', '7'),
+  (0x70, '0', '0'),
+  (0x71, '.', '.'),
+  (0x72, '2', '2'),
+  (0x73, '5', '5'),
+  (0x74, '6', '6'),
+  (0x75, '8', '8'),
+  (0x79, '+', '+'),
+  (0x7A, '3', '3'),
+  (0x7B, '-', '-'),
+  (0x7C, '*', '*'),
+  (0x7D, '9', '9'),
 ]
 
 extended_codes=[
+  (0x11, RALT, RALT),   # EXTENDED
+  (0x14, RCTRL, RCTRL), # EXTENDED
+  (0x1F, LGUI, LGUI),   # EXTENDED
+  (0x27, RGUI, RGUI),   # EXTENDED
+  (0x4A, '/', '/'),     # EXTENDED - keypad
   (0x55, PGUP, PGUP),   # EXTENDED
+  (0x5A, ENTER, ENTER), # EXTENDED - keypad
   (0x69, END, END),     # EXTENDED
   (0x6B, LARR, LARR),   # EXTENDED
   (0x6C, HOME, HOME),   # EXTENDED

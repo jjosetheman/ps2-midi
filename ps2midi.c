@@ -34,7 +34,7 @@
 volatile uint8_t kbd_data;
 volatile uint8_t char_waiting;
 volatile uint8_t up_event, down_event;
-volatile uint8_t next_extended, up_extended, down_extended;
+volatile uint8_t next_extended, next_otherextended, up_extended, down_extended;
 volatile uint8_t key_state[256];
 uint8_t started;
 uint8_t bit_count;
@@ -81,30 +81,42 @@ ISR(PCINT0_vect){
     release = 1;
     kbd_data = 0;
     return;
-  } else if ((kbd_data == 0xE0) || (kbd_data == 0xE1)) { //extended code
+  } else if (kbd_data == 0xE0) { //extended code
     next_extended = 1;
     return;
-  } else if ((kbd_data == 0x12) || (kbd_data == 0x59)) { //handle shift key
+  } else if (kbd_data == 0xE1) { //the other extended code (pause/break)
+    next_otherextended = 1;
+    return;
+/*  } else if ((kbd_data == 0x12) || (kbd_data == 0x59)) { //handle shift key
     if(release == 0){
       shift = 1;
     } else {
       shift = 0;
       release = 0;
     }
-    return;
+    return;*/
   } else { //not a special character
     if(release){ //we were in release mode - exit release mode
       release = 0;
-      up_event = kbd_data;
-      up_extended = next_extended;
+      if (next_otherextended == 1) {
+	// it's the damn pause/break key. Attempt to ignore this miserable spawn of satan.   
+      } else {
+          up_event = kbd_data;
+          up_extended = next_extended;
+      }
       next_extended = 0;
+      next_otherextended = 0;
       key_state[kbd_data] = 0;
     } else { 
-      // ignore down events if key repeat is occurring
-      if (key_state[kbd_data] == 0) {
+      if (next_otherextended == 1) {
+   	  // it's the damn pause/break key. Attempt to ignore this miserable spawn of satan.
+      } else if (key_state[kbd_data] == 1) {
+          // ignore down events if key repeat is occurring 
+      } else {
           down_event = kbd_data;
           down_extended = next_extended;
       }
+      next_otherextended = 0;
       next_extended = 0;
       char_waiting = 1;
       key_state[kbd_data] = 1;
@@ -148,6 +160,10 @@ void init_keyboard()
   started = 0;
   kbd_data = 0;
   bit_count = 0;
+  next_extended = 0;
+  next_otherextended = 0;
+  down_event = 0;
+  up_event = 0;
 
   //make PB1 input pin
   //DDRB &= ~(1<<PB1);
