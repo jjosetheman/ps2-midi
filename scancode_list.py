@@ -32,6 +32,7 @@ PGDN=chr(230)
 END=chr(231)
 LGUI=chr(232)
 RGUI=chr(233)
+APPS=chr(234)
 
 
 BS=chr(8)
@@ -138,6 +139,7 @@ extended_codes=[
   (0x14, RCTRL, RCTRL), # EXTENDED
   (0x1F, LGUI, LGUI),   # EXTENDED
   (0x27, RGUI, RGUI),   # EXTENDED
+  (0x2F, APPS, APPS),   # EXTENDED 
   (0x4A, '/', '/'),     # EXTENDED - keypad
   (0x55, PGUP, PGUP),   # EXTENDED
   (0x5A, ENTER, ENTER), # EXTENDED - keypad

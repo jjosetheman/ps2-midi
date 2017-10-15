@@ -1,4 +1,9 @@
+# http://www.smbaker.com//
+#
+# Generates mapping of keyboard scancodes to midi notes and channels 
+
 from scancode_list import *
+from midipercuss import *
 
 lowcodes={}
 hicodes={}
@@ -10,21 +15,55 @@ extcodes={}
 for entry in extended_codes:
     extcodes[entry[0]] = entry[1]
 
+# List of keyboard lines. Each one of these lines will be mapped to a set
+# of notes starting with middle C for a particular instrument.
+
 lines = ["1234567890-=",
          "qwertyuiop[]\\",
          "asdfghjkl;'",
          "zxcvbnm,./",
-         F1 + F2 + F3 + F4 + F5 + F6 + F7 + F8 + F9 + F10 + F11 + F12,
-         "",
-         "",
-         ""
-         " `" + BS + TAB + ENTER + BACKQUOTE + ESC + LCTRL + LALT + 
-               SCROLL + NUM + LARR + DARR + UARR + RARR + INS + DEL + 
-               HOME + PGUP + PGDN + END + LGUI + RGUI + LSHIFT + RSHIFT +
-               CAPSLOCK + RCTRL + RALT]
+         F1 + F2 + F3 + F4 + F5 + F6 + F7 + F8 + F9 + F10 + F11 + F12]
+
+# The percussion line is special, as it isn't really notes, but rather a
+# set of instruments.
+
+percuss_line = {" ": HIGHTOM1,
+                "`": MUTHIGHCONGA,
+                BS: LOWCONGA,
+                TAB: HIGHTIMBALE,
+                ENTER: OPENHIGHCONGA,
+                BACKQUOTE: LOWAPOGO,
+                ESC: SHORTWHISTLE,
+                LCTRL: CLAVES,
+                LALT: LONGGUIRO,
+                SCROLL: HIGHWOODBLOCK,
+                NUM: LOWWOODBLOCK,
+                LARR: OPENCUICA,
+                DARR: OPENTRIANGLE,
+                UARR: EIGHTTHREE,
+                RARR: BASSDRUM1,
+                INS: SNAREDRUM1,
+                DEL: SNAREDRUM2,
+                HOME: LOWTOM2,
+                PGUP: LOWTOM1,
+                PGDN: MIDTOM2,
+                END: MIDTOM1,
+                LGUI: HIGHTOM2,
+                RGUI: 50,
+                LSHIFT: CHINESECYMBAL,
+                RSHIFT: VIBRASLAP,
+                CAPSLOCK: HANDCLAP,
+                RCTRL: CRASHCYMBAL2,
+                RALT: MIDTOM2,
+                "*": COWBELL,
+                "+": MIDTOM2,
+                APPS: CRASHCYMBAL1}
+
+# List of notes. 60 is middle C, 62 is D, ...
 
 notes = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79, 81, 83, 
-         36, 38, 40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59]
+         36, 38, 40, 41, 43, 45, 47, 48, 50, 52, 53, 55, 57, 59,
+         24, 26]
 
 def map_code(ch):
         line_index = 0
@@ -37,6 +76,9 @@ def map_code(ch):
                     return (note, chan)
                 char_index += 1
             line_index += 1
+
+        if ch in percuss_line:
+            return (percuss_line[ch], 7)
 
         return (None, None)
 
